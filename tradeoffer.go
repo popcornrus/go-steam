@@ -69,7 +69,7 @@ type EconItem struct {
 	ClassID    uint64 `json:"classid,string,omitempty"`
 	AppID      uint32 `json:"appid"`
 	ContextID  uint64 `json:"contextid,string"`
-	Amount     uint16 `json:"amount,string"`
+	Amount     uint32 `json:"amount,string"`
 	Missing    bool   `json:"missing,omitempty"`
 	EstUSD     uint32 `json:"est_usd,string"`
 }
