@@ -239,10 +239,18 @@ type EscrowSteamGuardInfo struct {
 }
 
 func (session *Session) GetEscrowGuardInfo(sid SteamID, token string) (*EscrowSteamGuardInfo, error) {
-	resp, err := session.client.Get("https://steamcommunity.com/tradeoffer/new/?" + url.Values{
+	return session.GetEscrow("https://steamcommunity.com/tradeoffer/new/?" + url.Values{
 		"partner": {strconv.FormatUint(uint64(sid.GetAccountID()), 10)},
 		"token":   {token},
 	}.Encode())
+}
+
+func (session *Session) GetEscrowGuardInfoForTrade(offerID uint64) (*EscrowSteamGuardInfo, error) {
+	return session.GetEscrow("https://steamcommunity.com/tradeoffer/" + strconv.FormatUint(offerID, 10))
+}
+
+func (session *Session) GetEscrow(url string) (*EscrowSteamGuardInfo, error) {
+	resp, err := session.client.Get(url)
 	if resp != nil {
 		defer resp.Body.Close()
 	}
