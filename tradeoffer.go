@@ -104,6 +104,7 @@ type EconItemDesc struct {
 	NameColor       string        `json:"name_color"`
 	MarketName      string        `json:"market_name"`
 	MarketHashName  string        `json:"market_hash_name"`
+	MarketFeeApp    uint32        `json:"market_fee_app"`
 	Comodity        bool          `json:"comodity"`
 	Actions         []*EconAction `json:"actions"`
 	Tags            []*EconTag    `json:"tags"`
