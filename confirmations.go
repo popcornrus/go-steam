@@ -3,10 +3,9 @@ package steam
 import (
 	"encoding/json"
 	"errors"
+	"fmt"
 	"io"
 	"net/http"
-
-	"fmt"
 	"net/url"
 	"strconv"
 
@@ -23,10 +22,10 @@ type Confirmation struct {
 }
 
 var (
-	ErrConfirmationsUnknownError = errors.New("unknown error occurered finding confirmations")
-	ErrCannotFindConfirmations   = errors.New("unable to find confirmations")
+	//ErrConfirmationsUnknownError = errors.New("unknown error occurred finding confirmation")
+	ErrCannotFindConfirmations   = errors.New("unable to find confirmation")
 	ErrCannotFindDescriptions    = errors.New("unable to find confirmation descriptions")
-	ErrConfiramtionsDescMismatch = errors.New("cannot match confirmations with their respective descriptions")
+	ErrConfirmationsDescMismatch = errors.New("cannot match confirmation with their respective descriptions")
 )
 
 func (session *Session) execConfirmationRequest(request, key, tag string, current int64, values map[string]interface{}) (*http.Response, error) {
@@ -39,16 +38,14 @@ func (session *Session) execConfirmationRequest(request, key, tag string, curren
 		"tag": {tag},
 	}
 
-	if values != nil {
-		for k, v := range values {
-			switch v := v.(type) {
-			case string:
-				params.Add(k, v)
-			case uint64:
-				params.Add(k, strconv.FormatUint(v, 10))
-			default:
-				return nil, fmt.Errorf("execConfirmationRequest: missing implementation for type %v", v)
-			}
+	for k, v := range values {
+		switch v := v.(type) {
+		case string:
+			params.Add(k, v)
+		case uint64:
+			params.Add(k, strconv.FormatUint(v, 10))
+		default:
+			return nil, fmt.Errorf("execConfirmationRequest: missing implementation for type %v", v)
 		}
 	}
 
@@ -56,12 +53,12 @@ func (session *Session) execConfirmationRequest(request, key, tag string, curren
 }
 
 func (session *Session) GetConfirmations(identitySecret string, current int64) ([]*Confirmation, error) {
-	key, err := GenerateConfirmationCode(identitySecret, "conf", current)
+	key, err := GenerateConfirmationCode(identitySecret, "confirmation", current)
 	if err != nil {
 		return nil, err
 	}
 
-	resp, err := session.execConfirmationRequest("conf?", key, "conf", current, nil)
+	resp, err := session.execConfirmationRequest("confirmation?", key, "confirmation", current, nil)
 	if resp != nil {
 		defer resp.Body.Close()
 	}
@@ -96,7 +93,7 @@ func (session *Session) GetConfirmations(identitySecret string, current int64) (
 	}
 
 	if len(entries.Nodes) != len(descriptions.Nodes) {
-		return nil, ErrConfiramtionsDescMismatch
+		return nil, ErrConfirmationsDescMismatch
 	}
 
 	confirmations := []*Confirmation{}

@@ -89,8 +89,8 @@ type MarketBuyOrderResponse struct {
 }
 
 var (
-	ErrCannotLoadPrices     = errors.New("unable to load prices at this time")
-	ErrInvalidPriceResponse = errors.New("invalid market pricehistory response")
+	ErrCannotLoadPrices = errors.New("unable to load prices at this time")
+	//ErrInvalidPriceResponse = errors.New("invalid market pricehistory response")
 )
 
 func (session *Session) GetMarketItemPriceHistory(appID uint64, marketHashName string) ([]*MarketItemPrice, error) {
@@ -175,14 +175,30 @@ func (session *Session) GetMarketItemPriceOverview(appID uint64, country, curren
 }
 
 func (session *Session) SellItem(item *InventoryItem, amount, price uint64) (*MarketSellResponse, error) {
-	resp, err := session.client.PostForm("https://steamcommunity.com/market/sellitem/", url.Values{
-		"amount":    {strconv.FormatUint(amount, 10)},
-		"appid":     {strconv.FormatUint(uint64(item.AppID), 10)},
-		"assetid":   {strconv.FormatUint(item.AssetID, 10)},
-		"contextid": {strconv.FormatUint(item.ContextID, 10)},
-		"price":     {strconv.FormatUint(price, 10)},
-		"sessionid": {session.sessionID},
-	})
+	req, err := http.NewRequest(
+		http.MethodPost,
+		"https://steamcommunity.com/market/sellitem/",
+		strings.NewReader(url.Values{
+			"amount":    {strconv.FormatUint(amount, 10)},
+			"appid":     {strconv.FormatUint(uint64(item.AppID), 10)},
+			"assetid":   {strconv.FormatUint(item.AssetID, 10)},
+			"contextid": {strconv.FormatUint(item.ContextID, 10)},
+			"price":     {strconv.FormatUint(price, 10)},
+			"sessionid": {session.sessionID},
+		}.Encode()),
+	)
+	if err != nil {
+		return nil, err
+	}
+
+	profileURL, err := session.GetProfileURL()
+	if err != nil {
+		return nil, err
+	}
+
+	req.Header.Add("Referer", profileURL+"inventory/")
+
+	resp, err := session.client.Do(req)
 	if resp != nil {
 		defer resp.Body.Close()
 	}
@@ -226,7 +242,7 @@ func (session *Session) PlaceBuyOrder(appid uint64, priceTotal float64, quantity
 
 	req.Header.Add(
 		"Referer",
-		fmt.Sprintf("https://steamcommunity.com/market/listings/%d/%s", appid, referer ),
+		fmt.Sprintf("https://steamcommunity.com/market/listings/%d/%s", appid, referer),
 	)
 	req.Header.Add("Content-Type", "application/x-www-form-urlencoded")
 

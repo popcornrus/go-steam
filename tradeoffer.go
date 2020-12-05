@@ -81,10 +81,10 @@ type EconDesc struct {
 }
 
 type EconTag struct {
-	InternalName string `json:"internal_name"`
-	Name         string `json:"name"`
-	Category     string `json:"category"`
-	CategoryName string `json:"category_name"`
+	InternalName          string `json:"internal_name"`
+	Category              string `json:"category"`
+	LocalizedCategoryName string `json:"localized_category_name"`
+	LocalizedTagName      string `json:"localized_tag_name"`
 }
 
 type EconAction struct {
@@ -230,7 +230,7 @@ func (session *Session) GetMyTradeToken() (string, error) {
 		return "", ErrCannotFindOfferInfo
 	}
 
-	return string(m[1]), nil
+	return m[1], nil
 }
 
 type EscrowSteamGuardInfo struct {
@@ -274,18 +274,18 @@ func (session *Session) GetEscrow(url string) (*EscrowSteamGuardInfo, error) {
 	var errMsg string
 
 	m := myEscrowExp.FindStringSubmatch(string(body))
-	if m != nil && len(m) == 2 {
+	if len(m) == 2 {
 		my, _ = strconv.ParseInt(m[1], 10, 32)
 	}
 
 	m = themEscrowExp.FindStringSubmatch(string(body))
-	if m != nil && len(m) == 2 {
+	if len(m) == 2 {
 		them, _ = strconv.ParseInt(m[1], 10, 32)
 	}
 
 	m = errorMsgExp.FindStringSubmatch(string(body))
-	if m != nil && len(m) == 2 {
-		errMsg = string(m[1])
+	if len(m) == 2 {
+		errMsg = m[1]
 	}
 
 	return &EscrowSteamGuardInfo{
