@@ -26,6 +26,7 @@ var (
 	ErrCannotFindConfirmations   = errors.New("unable to find confirmation")
 	ErrCannotFindDescriptions    = errors.New("unable to find confirmation descriptions")
 	ErrConfirmationsDescMismatch = errors.New("cannot match confirmation with their respective descriptions")
+	ErrWGTokenExpired            = errors.New("WGToken expired")
 )
 
 func (session *Session) execConfirmationRequest(request, key, tag string, current int64, values map[string]interface{}) (*http.Response, error) {
@@ -53,12 +54,12 @@ func (session *Session) execConfirmationRequest(request, key, tag string, curren
 }
 
 func (session *Session) GetConfirmations(identitySecret string, current int64) ([]*Confirmation, error) {
-	key, err := GenerateConfirmationCode(identitySecret, "confirmation", current)
+	key, err := GenerateConfirmationCode(identitySecret, "conf", current)
 	if err != nil {
 		return nil, err
 	}
 
-	resp, err := session.execConfirmationRequest("confirmation?", key, "confirmation", current, nil)
+	resp, err := session.execConfirmationRequest("conf?", key, "conf", current, nil)
 	if resp != nil {
 		defer resp.Body.Close()
 	}
