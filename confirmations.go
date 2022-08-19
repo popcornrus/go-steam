@@ -4,7 +4,6 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"io"
 	"net/http"
 	"net/url"
 	"strconv"
@@ -68,7 +67,7 @@ func (session *Session) GetConfirmations(identitySecret string, current int64) (
 		return nil, err
 	}
 
-	doc, err := goquery.NewDocumentFromReader(io.Reader(resp.Body))
+	doc, err := goquery.NewDocumentFromReader(resp.Body)
 	if err != nil {
 		return nil, err
 	}

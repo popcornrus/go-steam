@@ -360,7 +360,7 @@ func (session *Session) RefreshSession() error {
 	}
 
 	var response WGTokenAPIResponse
-	if err := json.NewDecoder(resp.Body).Decode(&response); err != nil {
+	if err = json.NewDecoder(resp.Body).Decode(&response); err != nil {
 		return err
 	}
 
