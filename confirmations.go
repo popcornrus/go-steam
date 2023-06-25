@@ -3,21 +3,32 @@ package steam
 import (
 	"encoding/json"
 	"errors"
-	"fmt"
+	"io"
 	"net/http"
 	"net/url"
 	"strconv"
-
-	"github.com/PuerkitoBio/goquery"
 )
 
+type ConfirmationResponse struct {
+	Success       bool            `json:"success"`
+	Confirmations []*Confirmation `json:"conf"`
+}
+
 type Confirmation struct {
-	ID        uint64
-	Key       uint64
-	Title     string
-	Receiving string
-	Since     string
-	OfferID   uint64
+	ID           string `json:"id"`
+	Type         uint8  `json:"type"`
+	Creator      string `json:"creator_id"`
+	Nonce        string `json:"nonce"`
+	CreationTime uint64 `json:"creation"`
+
+	// TypeName string      `json:"type_name"`
+	// Cancel   string      `json:"cancel"`
+	// Accept   string      `json:"accept"`
+	// Icon     string      `json:"icon"`
+	// Multi    bool        `json:"multi"`
+	// Headline string      `json:"headline"`
+	// Summary  []string    `json:"summary"`
+	// Warn     interface{} `json:"warn"`
 }
 
 var (
@@ -28,7 +39,7 @@ var (
 	ErrWGTokenExpired            = errors.New("WGToken expired")
 )
 
-func (session *Session) execConfirmationRequest(request, key, tag string, current int64, values map[string]interface{}) (*http.Response, error) {
+func (session *Session) execConfirmationRequest(request, key, tag string, current int64, values map[string]string) (*http.Response, error) {
 	params := url.Values{
 		"p":   {session.deviceID},
 		"a":   {session.oauth.SteamID.ToString()},
@@ -39,14 +50,7 @@ func (session *Session) execConfirmationRequest(request, key, tag string, curren
 	}
 
 	for k, v := range values {
-		switch v := v.(type) {
-		case string:
-			params.Add(k, v)
-		case uint64:
-			params.Add(k, strconv.FormatUint(v, 10))
-		default:
-			return nil, fmt.Errorf("execConfirmationRequest: missing implementation for type %v", v)
-		}
+		params.Add(k, v)
 	}
 
 	return session.client.Get("https://steamcommunity.com/mobileconf/" + request + params.Encode())
@@ -58,7 +62,7 @@ func (session *Session) GetConfirmations(identitySecret string, current int64) (
 		return nil, err
 	}
 
-	resp, err := session.execConfirmationRequest("conf?", key, "conf", current, nil)
+	resp, err := session.execConfirmationRequest("getlist?", key, "conf", current, nil)
 	if resp != nil {
 		defer resp.Body.Close()
 	}
@@ -67,68 +71,16 @@ func (session *Session) GetConfirmations(identitySecret string, current int64) (
 		return nil, err
 	}
 
-	doc, err := goquery.NewDocumentFromReader(resp.Body)
-	if err != nil {
+	var confirmationResponse ConfirmationResponse
+
+	b, _ := io.ReadAll(resp.Body)
+
+	//d := json.NewDecoder(resp.Body)
+	if err = json.Unmarshal(b, &confirmationResponse); err != nil || !confirmationResponse.Success {
 		return nil, err
 	}
 
-	/* FIXME: broken
-	if empty := doc.Find(".mobileconf_empty"); empty != nil {
-		if done := doc.Find(".mobileconf_done"); done != nil {
-			return nil, nil
-		}
-
-		return nil, ErrConfirmationsUnknownError // FIXME
-	}
-	*/
-
-	entries := doc.Find(".mobileconf_list_entry")
-	if entries == nil {
-		return nil, ErrCannotFindConfirmations
-	}
-
-	descriptions := doc.Find(".mobileconf_list_entry_description")
-	if descriptions == nil {
-		return nil, ErrCannotFindDescriptions
-	}
-
-	if len(entries.Nodes) != len(descriptions.Nodes) {
-		return nil, ErrConfirmationsDescMismatch
-	}
-
-	confirmations := []*Confirmation{}
-	for k, sel := range entries.Nodes {
-		confirmation := &Confirmation{}
-		for _, attr := range sel.Attr {
-			if attr.Key == "data-confid" {
-				confirmation.ID, _ = strconv.ParseUint(attr.Val, 10, 64)
-			} else if attr.Key == "data-key" {
-				confirmation.Key, _ = strconv.ParseUint(attr.Val, 10, 64)
-			} else if attr.Key == "data-creator" {
-				confirmation.OfferID, _ = strconv.ParseUint(attr.Val, 10, 64)
-			}
-		}
-
-		descSel := descriptions.Nodes[k]
-		depth := 0
-		for child := descSel.FirstChild; child != nil; child = child.NextSibling {
-			for n := child.FirstChild; n != nil; n = n.NextSibling {
-				switch depth {
-				case 0:
-					confirmation.Title = n.Data
-				case 1:
-					confirmation.Receiving = n.Data
-				case 2:
-					confirmation.Since = n.Data
-				}
-				depth++
-			}
-		}
-
-		confirmations = append(confirmations, confirmation)
-	}
-
-	return confirmations, nil
+	return confirmationResponse.Confirmations, nil
 }
 
 func (session *Session) AnswerConfirmation(confirmation *Confirmation, identitySecret, answer string, current int64) error {
@@ -137,10 +89,10 @@ func (session *Session) AnswerConfirmation(confirmation *Confirmation, identityS
 		return err
 	}
 
-	op := map[string]interface{}{
+	op := map[string]string{
 		"op":  answer,
-		"cid": uint64(confirmation.ID),
-		"ck":  confirmation.Key,
+		"cid": confirmation.ID,
+		"ck":  confirmation.Nonce,
 	}
 
 	resp, err := session.execConfirmationRequest("ajaxop?", key, answer, current, op)
