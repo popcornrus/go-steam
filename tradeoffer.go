@@ -53,10 +53,10 @@ var (
 	errorMsgExp   = regexp.MustCompile("<div id=\"error_msg\">\\s*([^<]+)\\s*</div>")
 	offerInfoExp  = regexp.MustCompile("token=([a-zA-Z0-9-_]+)")
 
-	apiGetTradeOffer     = "https://api.steampowered.com/IEconService/GetTradeOffer/v1/?"
-	apiGetTradeOffers    = "https://api.steampowered.com/IEconService/GetTradeOffers/v1/?"
-	apiDeclineTradeOffer = "https://api.steampowered.com/IEconService/DeclineTradeOffer/v1/"
-	apiCancelTradeOffer  = "https://api.steampowered.com/IEconService/CancelTradeOffer/v1/"
+	apiGetTradeOffer     = APIBaseUrl + "/IEconService/GetTradeOffer/v1/?"
+	apiGetTradeOffers    = APIBaseUrl + "/IEconService/GetTradeOffers/v1/?"
+	apiDeclineTradeOffer = APIBaseUrl + "/IEconService/DeclineTradeOffer/v1/"
+	apiCancelTradeOffer  = APIBaseUrl + "/IEconService/CancelTradeOffer/v1/"
 
 	ErrReceiptMatch        = errors.New("unable to match items in trade receipt")
 	ErrCannotAcceptActive  = errors.New("unable to accept a non-active trade")

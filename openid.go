@@ -4,11 +4,14 @@ import (
 	"bytes"
 	"errors"
 	"fmt"
-	"github.com/PuerkitoBio/goquery"
 	"mime/multipart"
 	"net/http"
 	"net/url"
+
+	"github.com/PuerkitoBio/goquery"
 )
+
+const steamBaseUrl = "https://steamcommunity.com"
 
 func (session *Session) Auth(realm, return_to string) (*http.Response, error) {
 

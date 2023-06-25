@@ -73,7 +73,7 @@ func GenerateConfirmationCode(identitySecret, tag string, current int64) (string
 }
 
 func GetTimeTip() (*ServerTimeTip, error) {
-	resp, err := http.Post("https://api.steampowered.com/ITwoFactorService/QueryTime/v1/", "application/x-www-form-urlencoded", nil)
+	resp, err := http.Post(APIBaseUrl+"/ITwoFactorService/QueryTime/v1/", "application/x-www-form-urlencoded", nil)
 	if resp != nil {
 		defer resp.Body.Close()
 	}

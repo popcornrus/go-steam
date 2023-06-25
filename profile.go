@@ -22,11 +22,11 @@ const (
 )
 
 const (
-	apiGetPlayerSummaries = "https://api.steampowered.com/ISteamUser/GetPlayerSummaries/v0002/?"
-	apiGetOwnedGames      = "https://api.steampowered.com/IPlayerService/GetOwnedGames/v0001/?"
-	apiGetPlayerBans      = "https://api.steampowered.com/ISteamUser/GetPlayerBans/v1/?"
-	apiGetPlayerFriends   = "https://api.steampowered.com/ISteamUser/GetFriendList/v1/?"
-	apiResolveVanityURL   = "https://api.steampowered.com/ISteamUser/ResolveVanityURL/v1/?"
+	apiGetPlayerSummaries = APIBaseUrl + "/ISteamUser/GetPlayerSummaries/v0002/?"
+	apiGetOwnedGames      = APIBaseUrl + "/IPlayerService/GetOwnedGames/v0001/?"
+	apiGetPlayerBans      = APIBaseUrl + "/ISteamUser/GetPlayerBans/v1/?"
+	apiGetPlayerFriends   = APIBaseUrl + "/ISteamUser/GetFriendList/v1/?"
+	apiResolveVanityURL   = APIBaseUrl + "/ISteamUser/ResolveVanityURL/v1/?"
 )
 
 var ErrCannotFindVanityMatch = errors.New("no match for the vanity URL")

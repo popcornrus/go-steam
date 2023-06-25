@@ -39,10 +39,10 @@ const (
 )
 
 const (
-	apiUserPresenceLogin   = "https://api.steampowered.com/ISteamWebUserPresenceOAuth/Logon/v1"
-	apiUserPresenceLogoff  = "https://api.steampowered.com/ISteamWebUserPresenceOAuth/Logoff/v1"
-	apiUserPresencePoll    = "https://api.steampowered.com/ISteamWebUserPresenceOAuth/Poll/v1"
-	apiUserPresenceMessage = "https://api.steampowered.com/ISteamWebUserPresenceOAuth/Message/v1"
+	apiUserPresenceLogin   = APIBaseUrl + "/ISteamWebUserPresenceOAuth/Logon/v1"
+	apiUserPresenceLogoff  = APIBaseUrl + "/ISteamWebUserPresenceOAuth/Logoff/v1"
+	apiUserPresencePoll    = APIBaseUrl + "/ISteamWebUserPresenceOAuth/Poll/v1"
+	apiUserPresenceMessage = APIBaseUrl + "/ISteamWebUserPresenceOAuth/Message/v1"
 )
 
 type ChatMessage struct {

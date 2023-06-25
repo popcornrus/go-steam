@@ -9,6 +9,8 @@ import (
 )
 
 const (
+	APIBaseUrl = "https://api.steampowered.com"
+
 	apiKeyURL         = "https://steamcommunity.com/dev/apikey"
 	apiKeyRegisterURL = "https://steamcommunity.com/dev/registerkey"
 	apiKeyRevokeURL   = "https://steamcommunity.com/dev/revokekey"

@@ -26,9 +26,9 @@ type FinalizeTwoFactorInfo struct {
 }
 
 const (
-	enableTwoFactorURL   = "https://api.steampowered.com/ITwoFactorService/AddAuthenticator/v1/"
-	finalizeTwoFactorURL = "https://api.steampowered.com/ITwoFactorService/FinalizeAddAuthenticator/v1/"
-	disableTwoFactorURL  = "https://api.steampowered.com/ITwoFactorService/RemoveAuthenticator/v1/"
+	enableTwoFactorURL   = APIBaseUrl + "/ITwoFactorService/AddAuthenticator/v1/"
+	finalizeTwoFactorURL = APIBaseUrl + "/ITwoFactorService/FinalizeAddAuthenticator/v1/"
+	disableTwoFactorURL  = APIBaseUrl + "/ITwoFactorService/RemoveAuthenticator/v1/"
 )
 
 var ErrCannotDisable = errors.New("unable to process disable two factor request")

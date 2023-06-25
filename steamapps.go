@@ -7,7 +7,7 @@ import (
 )
 
 const (
-	apiUpToDateCheck = "https://api.steampowered.com/ISteamApps/UpToDateCheck/v1?"
+	apiUpToDateCheck = APIBaseUrl + "/ISteamApps/UpToDateCheck/v1?"
 )
 
 func (session *Session) GetRequiredSteamAppVersion(appID int) (int, error) {
