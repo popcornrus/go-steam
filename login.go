@@ -19,8 +19,8 @@ import (
 	"strconv"
 	"time"
 
-	"github.com/0xAozora/steam/pb"
 	"github.com/golang/protobuf/proto"
+	"github.com/popcornrus/steam/pb"
 )
 
 type LoginFinalized struct {
