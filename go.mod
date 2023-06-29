@@ -1,4 +1,4 @@
-module github.com/popcornrus/steam
+module github.com/popcornrus/go-steam
 
 go 1.20
 

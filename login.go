@@ -20,7 +20,7 @@ import (
 	"time"
 
 	"github.com/golang/protobuf/proto"
-	"github.com/popcornrus/steam/pb"
+	"github.com/popcornrus/go-steam/pb"
 )
 
 type LoginFinalized struct {
