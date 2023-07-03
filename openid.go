@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"errors"
 	"fmt"
+	browser "github.com/EDDYCJY/fake-useragent"
 	"mime/multipart"
 	"net/http"
 	"net/url"
@@ -14,7 +15,6 @@ import (
 const steamBaseUrl = "https://steamcommunity.com"
 
 func (session *Session) Auth(realm, return_to string) (*http.Response, error) {
-
 	url := steamBaseUrl + "/openid/login?" + url.Values{
 		"openid.mode":       {"checkid_setup"},
 		"openid.ns":         {"http://specs.openid.net/auth/2.0"},
@@ -25,9 +25,11 @@ func (session *Session) Auth(realm, return_to string) (*http.Response, error) {
 		"openid.claimed_id": {"http://specs.openid.net/auth/2.0/identifier_select"},
 	}.Encode()
 
+	randomUA := browser.Random()
+
 	req, _ := http.NewRequest("GET", url, nil)
 	req.Header.Set("Content-Type", "application/x-www-form-urlencoded; charset=UTF-8")
-	req.Header.Add("User-Agent", "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/51.0.2704.103 Safari/537.36")
+	req.Header.Add("User-Agent", randomUA)
 	req.Header.Add("Accept", "*/*")
 	//req.Header.Add()
 
@@ -76,7 +78,7 @@ func (session *Session) Auth(realm, return_to string) (*http.Response, error) {
 
 	req, _ = http.NewRequest("POST", steamBaseUrl+"/openid/login", body)
 	req.Header.Set("Content-Type", writer.FormDataContentType())
-	req.Header.Add("User-Agent", "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/51.0.2704.103 Safari/537.36")
+	req.Header.Add("User-Agent", randomUA)
 	req.Header.Add("Referer", url)
 	req.Header.Add("Accept", "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,*/*;q=0.8")
 	req.Header.Add("Accept-Language", "en-US,en;q=0.5")
