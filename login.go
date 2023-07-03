@@ -10,6 +10,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	browser "github.com/EDDYCJY/fake-useragent"
 	"io"
 	"math/big"
 	"mime/multipart"
@@ -72,6 +73,8 @@ var (
 	ErrEmptySessionID  = errors.New("sessionid is empty")
 	ErrInvalidUsername = errors.New("invalid username")
 	ErrNeedTwoFactor   = errors.New("invalid twofactor code")
+
+	browserUA = browser.Android()
 )
 
 func getRSAKey(accountName string) (*pb.CAuthentication_GetPasswordRSAPublicKey_Response, error) {
@@ -159,6 +162,7 @@ func beginAuthSession(crypt string, accountName string, timestamp *uint64) (*pb.
 
 	req, _ := http.NewRequest("POST", AuthSession, body)
 	req.Header.Set("Content-Type", writer.FormDataContentType())
+	req.Header.Set("User-Agent", browserUA)
 
 	resp, err := http.DefaultClient.Do(req)
 	if err != nil {
@@ -199,6 +203,7 @@ func updateAuthSession(code string, authSession *pb.CAuthentication_BeginAuthSes
 
 	req, _ := http.NewRequest("POST", UpdateAuthSession, body)
 	req.Header.Set("Content-Type", writer.FormDataContentType())
+	req.Header.Set("User-Agent", browserUA)
 
 	resp, err := http.DefaultClient.Do(req)
 	if err != nil {
@@ -229,6 +234,7 @@ func pollAuthSession(authSession *pb.CAuthentication_BeginAuthSessionViaCredenti
 
 	req, _ := http.NewRequest("POST", Poll, body)
 	req.Header.Set("Content-Type", writer.FormDataContentType())
+	req.Header.Set("User-Agent", browserUA)
 
 	resp, err := http.DefaultClient.Do(req)
 	if err != nil {
@@ -273,6 +279,7 @@ func (session *Session) finalizeLogin(pollAuth *pb.CAuthentication_PollAuthSessi
 
 	req, _ := http.NewRequest("POST", FinalizeLogin, body)
 	req.Header.Set("Content-Type", writer.FormDataContentType())
+	req.Header.Set("User-Agent", browserUA)
 
 	resp, err := http.DefaultClient.Do(req)
 	if err != nil {
@@ -315,6 +322,8 @@ func (session *Session) finalizeLogin(pollAuth *pb.CAuthentication_PollAuthSessi
 		req, _ = http.NewRequest("POST", info.URL, body)
 		req.AddCookie(&http.Cookie{Name: "sessionid", Value: session.sessionID})
 		req.Header.Set("Content-Type", writer.FormDataContentType())
+		req.Header.Set("User-Agent", browserUA)
+
 		resp, err = http.DefaultClient.Do(req)
 		if err != nil {
 			return err
