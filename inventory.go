@@ -2,6 +2,7 @@ package steam
 
 import (
 	"encoding/json"
+	"errors"
 	"fmt"
 	"io/ioutil"
 	"net/url"
@@ -10,7 +11,7 @@ import (
 )
 
 const (
-	InventoryEndpoint = "https://steamcommunity.com/profiles/%d/inventory/json/%d/%d?"
+	InventoryEndpoint = "https://www.steamwebapi.com/steam/api/inventory/%d/%d/%d?"
 )
 
 type ItemTag struct {
@@ -78,23 +79,15 @@ func (session *Session) fetchInventory(
 	}
 
 	type Asset struct {
-		Name       string `json:"name"`
-		AppId      string `json:"appid,string"`
-		AssetID    uint64 `json:"id,string"`
+		AppID      uint32 `json:"appid"`
+		ContextID  uint64 `json:"contextid,string"`
+		AssetID    uint64 `json:"assetid,string"`
 		ClassID    uint64 `json:"classid,string"`
 		InstanceID uint64 `json:"instanceid,string"`
 		Amount     uint64 `json:"amount,string"`
 	}
 
 	type Response struct {
-		Success        bool                     `json:"success"`
-		RGInventory    map[string]Asset         `json:"rgInventory"`
-		RGDescriptions map[string]*EconItemDesc `json:"rgDescriptions"`
-		More           bool                     `json:"more"`
-		MoreStart      bool                     `json:"more_start"`
-	}
-
-	/*type Response struct {
 		Assets              []Asset         `json:"assets"`
 		Descriptions        []*EconItemDesc `json:"descriptions"`
 		Success             int             `json:"success"`
@@ -102,14 +95,18 @@ func (session *Session) fetchInventory(
 		LastAssetID         string          `json:"last_assetid"`
 		TotalInventoryCount int             `json:"total_inventory_count"`
 		ErrorMsg            string          `json:"error"`
-	}*/
+	}
 
 	var response Response
 	if err = json.NewDecoder(resp.Body).Decode(&response); err != nil {
 		return false, 0, err
 	}
 
-	if response.Success == false {
+	if response.Success == 0 {
+		if len(response.ErrorMsg) != 0 {
+			return false, 0, errors.New(response.ErrorMsg)
+		}
+
 		return false, 0, nil // empty inventory
 	}
 
@@ -120,33 +117,29 @@ func (session *Session) fetchInventory(
 	//
 	// We need it for fast asset's description
 	// searching in future
-	descriptions := make(map[string]Asset)
-	for _, desc := range response.RGInventory {
+	descriptions := make(map[string]int)
+	for i, desc := range response.Descriptions {
 		key := fmt.Sprintf("%d_%d", desc.ClassID, desc.InstanceID)
-		descriptions[key] = desc
+		descriptions[key] = i
 	}
 
-	for _, asset := range response.RGDescriptions {
-		var (
-			desc      *EconItemDesc
-			assetItem Asset
-		)
+	for _, asset := range response.Assets {
+		var desc *EconItemDesc
 
 		key := fmt.Sprintf("%d_%d", asset.ClassID, asset.InstanceID)
-		desc = response.RGDescriptions[key]
-		assetItem = descriptions[key]
-
-		item := InventoryItem{
-			AppID:      uint32(appID),
-			ContextID:  contextID,
-			AssetID:    assetItem.AssetID,
-			ClassID:    asset.ClassID,
-			InstanceID: asset.InstanceID,
-			Amount:     assetItem.Amount,
-			Desc:       desc,
+		if d, ok := descriptions[key]; ok {
+			desc = response.Descriptions[d]
 		}
 
-		lastAssetID = assetItem.AssetID
+		item := InventoryItem{
+			AppID:      asset.AppID,
+			ContextID:  asset.ContextID,
+			AssetID:    asset.AssetID,
+			ClassID:    asset.ClassID,
+			InstanceID: asset.InstanceID,
+			Amount:     asset.Amount,
+			Desc:       desc,
+		}
 
 		add := true
 		for _, filter := range filters {
@@ -161,9 +154,14 @@ func (session *Session) fetchInventory(
 		}
 	}
 
-	hasMore = response.More != false
+	hasMore = response.HasMore != 0
 	if !hasMore {
 		return hasMore, 0, nil
+	}
+
+	lastAssetID, err = strconv.ParseUint(response.LastAssetID, 10, 64)
+	if err != nil {
+		return hasMore, 0, err
 	}
 
 	return hasMore, lastAssetID, nil
