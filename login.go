@@ -128,7 +128,7 @@ func encryptPasword(pwd string, key *pb.CAuthentication_GetPasswordRSAPublicKey_
 	return base64.StdEncoding.EncodeToString(rsaOut), nil
 }
 
-func (session *Session) beginAuthSession(crypt string, accountName string, timestamp *uint64) (*pb.CAuthentication_BeginAuthSessionViaCredentials_Response, error) {
+func beginAuthSession(crypt string, accountName string, timestamp *uint64) (*pb.CAuthentication_BeginAuthSessionViaCredentials_Response, error) {
 
 	deviceFriendlyName := "Galaxy S22"
 	platformType := pb.EAuthTokenPlatformType_k_EAuthTokenPlatformType_MobileApp.Enum()
@@ -164,7 +164,7 @@ func (session *Session) beginAuthSession(crypt string, accountName string, times
 	req.Header.Set("Content-Type", writer.FormDataContentType())
 	req.Header.Set("User-Agent", browserUA)
 
-	resp, err := session.client.Do(req)
+	resp, err := http.DefaultClient.Do(req)
 	if err != nil {
 		return nil, err
 	}
@@ -184,7 +184,7 @@ func (session *Session) beginAuthSession(crypt string, accountName string, times
 	return &authResponse, nil
 }
 
-func (session *Session) updateAuthSession(code string, authSession *pb.CAuthentication_BeginAuthSessionViaCredentials_Response) error {
+func updateAuthSession(code string, authSession *pb.CAuthentication_BeginAuthSessionViaCredentials_Response) error {
 
 	reqBody := pb.CAuthentication_UpdateAuthSessionWithSteamGuardCode_Request{
 		ClientId: authSession.ClientId,
@@ -205,7 +205,7 @@ func (session *Session) updateAuthSession(code string, authSession *pb.CAuthenti
 	req.Header.Set("Content-Type", writer.FormDataContentType())
 	req.Header.Set("User-Agent", browserUA)
 
-	resp, err := session.client.Do(req)
+	resp, err := http.DefaultClient.Do(req)
 	if err != nil {
 		return err
 	}
@@ -217,7 +217,7 @@ func (session *Session) updateAuthSession(code string, authSession *pb.CAuthenti
 	return nil
 }
 
-func (session *Session) pollAuthSession(authSession *pb.CAuthentication_BeginAuthSessionViaCredentials_Response) (*pb.CAuthentication_PollAuthSessionStatus_Response, error) {
+func pollAuthSession(authSession *pb.CAuthentication_BeginAuthSessionViaCredentials_Response) (*pb.CAuthentication_PollAuthSessionStatus_Response, error) {
 
 	reqBody := pb.CAuthentication_PollAuthSessionStatus_Request{
 		ClientId:  authSession.ClientId,
@@ -236,7 +236,7 @@ func (session *Session) pollAuthSession(authSession *pb.CAuthentication_BeginAut
 	req.Header.Set("Content-Type", writer.FormDataContentType())
 	req.Header.Set("User-Agent", browserUA)
 
-	resp, err := session.client.Do(req)
+	resp, err := http.DefaultClient.Do(req)
 	if err != nil {
 		return nil, err
 	}
@@ -281,7 +281,7 @@ func (session *Session) finalizeLogin(pollAuth *pb.CAuthentication_PollAuthSessi
 	req.Header.Set("Content-Type", writer.FormDataContentType())
 	req.Header.Set("User-Agent", browserUA)
 
-	resp, err := session.client.Do(req)
+	resp, err := http.DefaultClient.Do(req)
 	if err != nil {
 		return err
 	}
@@ -324,7 +324,7 @@ func (session *Session) finalizeLogin(pollAuth *pb.CAuthentication_PollAuthSessi
 		req.Header.Set("Content-Type", writer.FormDataContentType())
 		req.Header.Set("User-Agent", browserUA)
 
-		resp, err = session.client.Do(req)
+		resp, err = http.DefaultClient.Do(req)
 		if err != nil {
 			return err
 		}
@@ -356,18 +356,18 @@ func (session *Session) Login(accountName, password, sharedSecret string, timeOf
 		return err
 	}
 
-	authSession, err := session.beginAuthSession(crypt, accountName, key.Timestamp)
+	authSession, err := beginAuthSession(crypt, accountName, key.Timestamp)
 	if err != nil {
 		return err
 	}
 
 	code, _ := GenerateTwoFactorCode(sharedSecret, time.Now().Add(timeOffset).Unix())
 
-	if err = session.updateAuthSession(code, authSession); err != nil {
+	if err = updateAuthSession(code, authSession); err != nil {
 		return err
 	}
 
-	pollAuth, err := session.pollAuthSession(authSession)
+	pollAuth, err := pollAuthSession(authSession)
 	if err != nil {
 		return err
 	}
