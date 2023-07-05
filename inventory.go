@@ -11,7 +11,7 @@ import (
 )
 
 const (
-	InventoryEndpoint = "http://steamcommunity.com/inventory/%d/%d/%d?"
+	InventoryEndpoint = "https://steamcommunity.com/inventory/%d/%d/%d?"
 )
 
 type ItemTag struct {
