@@ -429,8 +429,11 @@ func (session *Session) DeclineTradeOffer(id uint64) error {
 		url.Values{
 			"tradeofferid": {strconv.FormatUint(id, 10)},
 		})
-	if resp != nil {
-		resp.Body.Close()
+
+	defer resp.Body.Close()
+
+	if resp.StatusCode != http.StatusOK {
+		return fmt.Errorf("http error: %d", resp.StatusCode)
 	}
 
 	if err != nil {
@@ -445,8 +448,11 @@ func (session *Session) CancelTradeOffer(id uint64) error {
 		fmt.Sprintf(apiCancelTradeOffer, id), url.Values{
 			"tradeofferid": {strconv.FormatUint(id, 10)},
 		})
-	if resp != nil {
-		resp.Body.Close()
+
+	defer resp.Body.Close()
+
+	if resp.StatusCode != http.StatusOK {
+		return fmt.Errorf("http error: %d", resp.StatusCode)
 	}
 
 	if err != nil {
