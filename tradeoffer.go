@@ -56,8 +56,8 @@ var (
 
 	apiGetTradeOffer     = APIBaseUrl + "/IEconService/GetTradeOffer/v1/?"
 	apiGetTradeOffers    = APIBaseUrl + "/IEconService/GetTradeOffers/v1/?"
-	apiDeclineTradeOffer = APIAltBaseUrl + "/tradeoffer/%d/decline"
-	apiCancelTradeOffer  = APIAltBaseUrl + "/tradeoffer/%d/cancel"
+	apiDeclineTradeOffer = APIBaseUrl + "/IEconService/DeclineTradeOffer/v1/"
+	apiCancelTradeOffer  = APIBaseUrl + "/IEconService/CancelTradeOffer/v1/"
 
 	ErrReceiptMatch        = errors.New("unable to match items in trade receipt")
 	ErrCannotAcceptActive  = errors.New("unable to accept a non-active trade")
