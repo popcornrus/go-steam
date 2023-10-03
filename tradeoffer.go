@@ -55,8 +55,8 @@ var (
 
 	apiGetTradeOffer     = APIBaseUrl + "/IEconService/GetTradeOffer/v1/?"
 	apiGetTradeOffers    = APIBaseUrl + "/IEconService/GetTradeOffers/v1/?"
-	apiDeclineTradeOffer = APIBaseUrl + "/IEconService/DeclineTradeOffer/v1/"
-	apiCancelTradeOffer  = APIBaseUrl + "/IEconService/CancelTradeOffer/v1/"
+	apiDeclineTradeOffer = APIAltBaseUrl + "/tradeoffer/%d/decline"
+	apiCancelTradeOffer  = APIAltBaseUrl + "/tradeoffer/%d/cancel"
 
 	ErrReceiptMatch        = errors.New("unable to match items in trade receipt")
 	ErrCannotAcceptActive  = errors.New("unable to accept a non-active trade")
@@ -424,40 +424,33 @@ func (session *Session) GetTradeReceivedItems(receiptID uint64) ([]*InventoryIte
 }
 
 func (session *Session) DeclineTradeOffer(id uint64) error {
-	resp, err := session.client.PostForm(apiDeclineTradeOffer, url.Values{
-		"tradeofferid": {strconv.FormatUint(id, 10)},
-	})
+	resp, err := session.client.PostForm(
+		fmt.Sprintf(apiDeclineTradeOffer, id),
+		url.Values{
+			"tradeofferid": {strconv.FormatUint(id, 10)},
+		})
 	if resp != nil {
 		resp.Body.Close()
 	}
 
 	if err != nil {
 		return err
-	}
-
-	result := resp.Header.Get("x-eresult")
-	if result != "1" {
-		return fmt.Errorf("cannot decline trade: %s", result)
 	}
 
 	return nil
 }
 
 func (session *Session) CancelTradeOffer(id uint64) error {
-	resp, err := session.client.PostForm(apiCancelTradeOffer, url.Values{
-		"tradeofferid": {strconv.FormatUint(id, 10)},
-	})
+	resp, err := session.client.PostForm(
+		fmt.Sprintf(apiCancelTradeOffer, id), url.Values{
+			"tradeofferid": {strconv.FormatUint(id, 10)},
+		})
 	if resp != nil {
 		resp.Body.Close()
 	}
 
 	if err != nil {
 		return err
-	}
-
-	result := resp.Header.Get("x-eresult")
-	if result != "1" {
-		return fmt.Errorf("cannot cancel trade: %s", result)
 	}
 
 	return nil
