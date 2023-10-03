@@ -425,8 +425,7 @@ func (session *Session) GetTradeReceivedItems(receiptID uint64) ([]*InventoryIte
 }
 
 func (session *Session) DeclineTradeOffer(id uint64) error {
-	resp, err := session.client.PostForm(
-		fmt.Sprintf(apiDeclineTradeOffer, id),
+	resp, err := session.client.PostForm(apiDeclineTradeOffer,
 		url.Values{
 			"tradeofferid": {strconv.FormatUint(id, 10)},
 		})
@@ -448,10 +447,9 @@ func (session *Session) DeclineTradeOffer(id uint64) error {
 }
 
 func (session *Session) CancelTradeOffer(id uint64) error {
-	resp, err := session.client.PostForm(
-		fmt.Sprintf(apiCancelTradeOffer, id), url.Values{
-			"tradeofferid": {strconv.FormatUint(id, 10)},
-		})
+	resp, err := session.client.PostForm(apiCancelTradeOffer, url.Values{
+		"tradeofferid": {strconv.FormatUint(id, 10)},
+	})
 
 	defer resp.Body.Close()
 
