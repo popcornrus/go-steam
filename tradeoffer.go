@@ -56,8 +56,8 @@ var (
 
 	apiGetTradeOffer     = APIBaseUrl + "/IEconService/GetTradeOffer/v1/?"
 	apiGetTradeOffers    = APIBaseUrl + "/IEconService/GetTradeOffers/v1/?"
-	apiDeclineTradeOffer = APIBaseUrl + "/IEconService/DeclineTradeOffer/v1/"
-	apiCancelTradeOffer  = APIBaseUrl + "/IEconService/CancelTradeOffer/v1/"
+	apiDeclineTradeOffer = APIAltBaseUrl + "/tradeoffer/%d/decline"
+	apiCancelTradeOffer  = APIAltBaseUrl + "/tradeoffer/%d/cancel"
 
 	ErrReceiptMatch        = errors.New("unable to match items in trade receipt")
 	ErrCannotAcceptActive  = errors.New("unable to accept a non-active trade")
@@ -425,13 +425,26 @@ func (session *Session) GetTradeReceivedItems(receiptID uint64) ([]*InventoryIte
 }
 
 func (session *Session) DeclineTradeOffer(id uint64) error {
-	resp, err := session.client.PostForm(apiDeclineTradeOffer,
-		url.Values{
-			"tradeofferid": {strconv.FormatUint(id, 10)},
-		})
+	tid := strconv.FormatUint(id, 10)
+	postURL := "https://steamcommunity.com/tradeoffer/" + tid
 
-	defer resp.Body.Close()
+	req, err := http.NewRequest(
+		http.MethodPost,
+		postURL+"/decline",
+		strings.NewReader(url.Values{
+			"sessionid":    {session.sessionID},
+			"serverid":     {"1"},
+			"tradeofferid": {tid},
+		}.Encode()),
+	)
+	if err != nil {
+		return err
+	}
 
+	req.Header.Add("Referer", postURL)
+	req.Header.Set("Content-Type", "application/x-www-form-urlencoded")
+
+	resp, _ := session.client.Do(req)
 	if resp.StatusCode != http.StatusOK {
 		body, _ := io.ReadAll(resp.Body) // response body is []byte
 		fmt.Println(string(body))
@@ -439,20 +452,32 @@ func (session *Session) DeclineTradeOffer(id uint64) error {
 		return fmt.Errorf("http error: %d", resp.StatusCode)
 	}
 
-	if err != nil {
-		return err
-	}
+	resp.Body.Close()
 
 	return nil
 }
 
 func (session *Session) CancelTradeOffer(id uint64) error {
-	resp, err := session.client.PostForm(apiCancelTradeOffer, url.Values{
-		"tradeofferid": {strconv.FormatUint(id, 10)},
-	})
+	tid := strconv.FormatUint(id, 10)
+	postURL := "https://steamcommunity.com/tradeoffer/" + tid
 
-	defer resp.Body.Close()
+	req, err := http.NewRequest(
+		http.MethodPost,
+		postURL+"/cancel",
+		strings.NewReader(url.Values{
+			"sessionid":    {session.sessionID},
+			"serverid":     {"1"},
+			"tradeofferid": {tid},
+		}.Encode()),
+	)
+	if err != nil {
+		return err
+	}
 
+	req.Header.Add("Referer", postURL)
+	req.Header.Set("Content-Type", "application/x-www-form-urlencoded")
+
+	resp, _ := session.client.Do(req)
 	if resp.StatusCode != http.StatusOK {
 		body, _ := io.ReadAll(resp.Body) // response body is []byte
 		fmt.Println(string(body))
@@ -460,9 +485,7 @@ func (session *Session) CancelTradeOffer(id uint64) error {
 		return fmt.Errorf("http error: %d", resp.StatusCode)
 	}
 
-	if err != nil {
-		return err
-	}
+	resp.Body.Close()
 
 	return nil
 }
