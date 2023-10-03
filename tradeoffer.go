@@ -95,7 +95,7 @@ type EconAction struct {
 type EconItemDesc struct {
 	ClassID         uint64        `json:"classid,string"`    // for matching with EconItem
 	InstanceID      uint64        `json:"instanceid,string"` // for matching with EconItem
-	Tradable        int          `json:"tradable"`
+	Tradable        int           `json:"tradable"`
 	BackgroundColor string        `json:"background_color"`
 	IconURL         string        `json:"icon_url"`
 	IconLargeURL    string        `json:"icon_url_large"`
@@ -425,7 +425,6 @@ func (session *Session) GetTradeReceivedItems(receiptID uint64) ([]*InventoryIte
 
 func (session *Session) DeclineTradeOffer(id uint64) error {
 	resp, err := session.client.PostForm(apiDeclineTradeOffer, url.Values{
-		"key":          {session.apiKey},
 		"tradeofferid": {strconv.FormatUint(id, 10)},
 	})
 	if resp != nil {
@@ -446,7 +445,6 @@ func (session *Session) DeclineTradeOffer(id uint64) error {
 
 func (session *Session) CancelTradeOffer(id uint64) error {
 	resp, err := session.client.PostForm(apiCancelTradeOffer, url.Values{
-		"key":          {session.apiKey},
 		"tradeofferid": {strconv.FormatUint(id, 10)},
 	})
 	if resp != nil {
