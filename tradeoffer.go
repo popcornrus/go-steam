@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"io"
 	"io/ioutil"
 	"net/http"
 	"net/url"
@@ -433,6 +434,9 @@ func (session *Session) DeclineTradeOffer(id uint64) error {
 	defer resp.Body.Close()
 
 	if resp.StatusCode != http.StatusOK {
+		body, _ := io.ReadAll(resp.Body) // response body is []byte
+		fmt.Println(string(body))
+
 		return fmt.Errorf("http error: %d", resp.StatusCode)
 	}
 
@@ -452,6 +456,9 @@ func (session *Session) CancelTradeOffer(id uint64) error {
 	defer resp.Body.Close()
 
 	if resp.StatusCode != http.StatusOK {
+		body, _ := io.ReadAll(resp.Body) // response body is []byte
+		fmt.Println(string(body))
+
 		return fmt.Errorf("http error: %d", resp.StatusCode)
 	}
 
