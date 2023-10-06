@@ -520,6 +520,9 @@ func (session *Session) AcceptTradeOffer(id uint64) error {
 	}
 
 	if resp.StatusCode != http.StatusOK {
+		body, _ := io.ReadAll(resp.Body) // response body is []byte
+		fmt.Println(string(body))
+
 		return fmt.Errorf("http error: %d", resp.StatusCode)
 	}
 
