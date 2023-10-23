@@ -27,6 +27,7 @@ const (
 	TradeStateCreatedNeedsConfirmation
 	TradeStateCanceledByTwoFactor
 	TradeStateInEscrow
+	TradeAccessDenied = 15
 )
 
 const (
