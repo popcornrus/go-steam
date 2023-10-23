@@ -62,12 +62,14 @@ func (session *Session) fetchInventory(
 		"l": {session.language},
 	}
 
-	/*	if startAssetID != 0 {
-			params.Set("start_assetid", strconv.FormatUint(startAssetID, 10))
-			params.Set("count", "75")
-		} else {
-			params.Set("count", "250")
-		}*/
+	/*
+		if startAssetID != 0 {
+				params.Set("start_assetid", strconv.FormatUint(startAssetID, 10))
+				params.Set("count", "75")
+			} else {
+				params.Set("count", "250")
+			}
+	*/
 
 	resp, err := session.client.Get(fmt.Sprintf(InventoryEndpoint, sid, appID, contextID) + params.Encode())
 	if resp != nil {
