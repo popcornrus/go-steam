@@ -27,7 +27,12 @@ const (
 	TradeStateCreatedNeedsConfirmation
 	TradeStateCanceledByTwoFactor
 	TradeStateInEscrow
-	TradeStateAccessDenied = 15
+	TradeStateAccessDenied       = 15
+	TradeStateTimeout            = 16
+	TradeStateServiceUnavailable = 20
+	TradeStateLimitExceeded      = 25
+	TradeStateRevoked            = 26
+	TradeStateAlreadyRedeemed    = 28
 )
 
 const (

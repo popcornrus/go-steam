@@ -64,7 +64,7 @@ func (session *Session) fetchInventory(
 
 	/*
 		if startAssetID != 0 {
-				params.Set("start_assetid", strconv.FormatUint(startAssetID, 10))
+					params.Set("start_assetid", strconv.FormatUint(startAssetID, 10))
 				params.Set("count", "75")
 			} else {
 				params.Set("count", "250")
