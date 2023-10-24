@@ -33,6 +33,7 @@ const (
 	TradeStateLimitExceeded      = 25
 	TradeStateRevoked            = 26
 	TradeStateAlreadyRedeemed    = 28
+	TradeStateNoMatch            = 42
 )
 
 const (
